@@ -1,44 +1,65 @@
-##  Trader Performance vs Market Sentiment
+# Trader Performance vs Market Sentiment
+## Primetrade.ai · Data Science Intern Round-0 Assignment
 
-An end-to-end data analysis project exploring the relationship between 
-Bitcoin market sentiment (Fear/Greed Index) and trader behavior on 
-Hyperliquid — a decentralized perpetuals exchange.
+---
 
-Analyzed 211,000+ real trades across 2 years (2023–2025).
+## Setup & How to Run
 
-##  Key Findings
-- Traders execute 37% more trades on Fear days with no improvement in win rate
-- Greed days produce more consistent positive PnL (median $265 vs $123 on Fear days)
-- Consistent winners (>50% win rate) outperform high-frequency traders across all sentiments
-- Random Forest model predicts next-day profitability with 95% accuracy
-
-## Tech Stack
-- Python · Pandas · NumPy
-- Matplotlib · Seaborn
-- Scikit-learn (Random Forest)
-- Jupyter Notebook
-
-##  Repository Structure
-trader-sentiment-analysis/
-├── trader_sentiment_analysis.ipynb  # Main analysis notebook
-├── README.md                        # Project documentation
-├── charts/                          # All output charts
-│   ├── chart1_pnl_distribution.png
-│   ├── chart2_behavior_metrics.png
-│   ├── chart3_timeseries.png
-│   ├── chart4_segments.png
-│   ├── chart5_longshort.png
-│   └── chart6_feature_importance.png
-└── data/                            # Place CSV files here
-    ├── historical_data.csv
-    └── fear_greed_index.csv
-
-##  How to Run
-# 1. Clone the repo
-git clone https://github.com/ashutoshsinghh18/trader-sentiment-analysis
-
-# 2. Install dependencies
+### Requirements
+```bash
 pip install pandas numpy matplotlib seaborn scikit-learn jupyter
+```
 
-# 3. Launch notebook
+### Data Files (place in same directory as notebook)
+- `historical_data.csv` — Hyperliquid trader data
+- `fear_greed_index.csv` — Bitcoin Fear/Greed index
+
+### Run
+```bash
 jupyter notebook trader_sentiment_analysis.ipynb
+```
+
+---
+
+## Methodology
+
+**Data Prep:**  
+- Parsed `Timestamp IST` (dd-mm-yyyy HH:MM) → date; aligned on daily date key with Fear/Greed index (2023–2025 overlap).  
+- Simplified 5-class sentiment (Extreme Fear / Fear / Neutral / Greed / Extreme Greed) → 3 classes for cleaner analysis.  
+- Built daily per-account metrics: PnL, win rate, trade count, avg size, long/short ratio.  
+- No missing values in either dataset; no duplicates in fear/greed; trade data had no NaNs.
+
+**Analysis:**  
+- Compared PnL, win rate, trade frequency, and position size across sentiment classes.  
+- Segmented traders by frequency (infrequent / moderate / frequent), position size, and win consistency.  
+- Built a Random Forest classifier to predict daily profitability using behavioral + sentiment features.
+
+---
+
+## Key Insights
+
+| # | Insight |
+|---|---------|
+| 1 | **Fear days → higher average PnL but lower median PnL.** Extreme outlier winners skew the mean. The median trader does _worse_ on Fear days ($123) than Greed days ($265). |
+| 2 | **Traders trade ~37% more on Fear days** (avg 105 trades vs 77 on Greed) with _no improvement_ in win rate (~36% across all sentiments). Overtrading on volatility is a losing pattern. |
+| 3 | **Consistent winners (>50% win rate) significantly outperform.** Trade frequency alone does not predict profitability — discipline and selectivity matter more than volume. |
+
+---
+
+## Strategy Recommendations
+
+**Strategy 1 — "Fear = Quality over Quantity"**  
+> On Fear days, *reduce trade count* by 20–30% and focus on high-conviction setups only.  
+> For large-position traders: reduce size. Win rate doesn't increase with more trades on Fear days.
+
+**Strategy 2 — "Greed = Ride the trend"**  
+> On Greed days, median PnL is more reliably positive. Avoid shorting against momentum.  
+> For Consistent-winner segment: Greed days are the optimal time to modestly scale up positions.
+
+---
+
+## Bonus
+
+- **Predictive model:** Random Forest (95% accuracy) predicting daily profitability from `win_rate`, `n_trades`, `avg_size`, `fg_value`. Win rate and trade frequency are the top two features.
+- **Trader archetypes:** Segmented into Consistent Winners, Inconsistent Traders, High-Frequency, Infrequent, Small/Large Position traders.
+
